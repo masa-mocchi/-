@@ -1,1 +1,64 @@
 aaaa
+PHP App口頭レビュー １
+1️⃣一覧表示
+ーーーーーーーーーーーーーーーーーーー
+まず、画面側の一覧表示の流れを確認します。
+
+Welcome hello worldと、
+新規作成ページへ飛ぶリンクと、
+ID、内容、更新、削除を見出しに持つ表が確認できます。
+
+一覧表示されるデータは、新規作成ページで作成ボタンを押下することで追加されていきます。
+
+
+次に、コード上の流れを説明します。
+この画面の雛形は主にindex.phpに記述されています。
+require_onceで functon.phpの関数などを利用できるように記述しています。
+Htmlの表の見出しまでの説明は省略して、
+３７行目から見ていきます。
+<?php foreach (getTodoList() as $todo): ?>
+
+Foreach文は配列の全要素に対してループ処理を順番に行い、asの後ろの変数に格納するものなので、$todoの値がなんなのかはgetTodoList（）を確認する必要があります。
+
+getTodoList()は、function.phpに記述しています。
+中身を見ると、getAllRecords()の値を返すとなっています。
+
+getAllRecords()は、connection.phpにあります。
+中身を確認すると、まず$dbh = connectPdo;
+という記述があります。この$dbhは、connectPdoの値が格納されているので、これを確認します。
+connectPdo関数の中身を確認すると、
+例外処理を行うtry catchが記述されており、この中でPDOクラスの定数ををインスタンス化した値を返す記述があります。
+
+よって、$dbhはPDOインスタンスの定数の値が格納されていることがわかります。定数の値は。config.phpで定義されています。
+
+これにより、PHPがDBの情報にアクセスできる状態であることがわかります。
+
+$sql = 'SELECT * FROM todos WHERE deleted_at IS NULL';
+は、todosテーブルの、デリートされていない全ての値を取得する記述です。
+
+return $dbh->query($sql)->fetchAll();
+
+ 以上の流れから、
+$dbhにPDOインスタンスが格納されているので、DBのテーブルの情報をクエリメソッドで呼び出した結果を、PDOstatementクラスであるfetchall()で全て取得した値がgetAllRecords()の値であることがわかります。
+
+これで、
+getAllRecords()の値はDB内の条件に合うtodosテーブルの値であり、getTodoList()に返され、
+Index.phpの$todoに配列として格納されていることがわかりました。
+配列の実際の中身の連想配列は、var_dumpするかDBを確認することでわかります。
+
+この下のテーブルロウ、テーブルデータを確認すると、
+最初にidをキーとする値、
+次にcontentをキーとする値、
+続いて更新リンク、
+削除ボタンが一覧表示されることがわかります。
+
+Htmlの記述内でphpのforeachを使用する際は、endforeachとして閉じる必要があるため、７０行目で記述しています。
+
+一覧表示の機能の処理の流れは以上となります。
+
+
+
+
+
+
+
